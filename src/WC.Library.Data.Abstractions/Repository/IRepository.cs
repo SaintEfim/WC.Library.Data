@@ -1,4 +1,4 @@
-﻿namespace WC.Library.Data.Abstractions.Repository;
+﻿namespace WC.Library.Data.Repository;
 
 public interface IRepository<TEntity>
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using WC.Library.Data.Abstractions.Repository;
 using WC.Library.Shared.Exceptions;
 
 namespace WC.Library.Data.Repository;
