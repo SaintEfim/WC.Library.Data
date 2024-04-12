@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{A2B29B09-2281-4D3C-BF65-A21A90751D35}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Data", "src\WC.Library.Data\WC.Library.Data.csproj", "{1B4C0E2D-7375-40DF-B991-946CDC017C54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Data.Abstractions", "src\WC.Library.Data.Abstractions\WC.Library.Data.Abstractions.csproj", "{F32A230C-8B4A-476D-B4FE-42107108EB4F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1B4C0E2D-7375-40DF-B991-946CDC017C54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B4C0E2D-7375-40DF-B991-946CDC017C54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B4C0E2D-7375-40DF-B991-946CDC017C54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B4C0E2D-7375-40DF-B991-946CDC017C54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
