@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Data", "src\WC.L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Data.Abstractions", "src\WC.Library.Data.Abstractions\WC.Library.Data.Abstractions.csproj", "{F32A230C-8B4A-476D-B4FE-42107108EB4F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Data.PostgreSql", "src\WC.Library.Data.PostgreSql\WC.Library.Data.PostgreSql.csproj", "{628E453F-579D-4178-A30B-CABF85F3F9C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F32A230C-8B4A-476D-B4FE-42107108EB4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{628E453F-579D-4178-A30B-CABF85F3F9C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{628E453F-579D-4178-A30B-CABF85F3F9C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{628E453F-579D-4178-A30B-CABF85F3F9C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{628E453F-579D-4178-A30B-CABF85F3F9C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
