@@ -1,10 +1,12 @@
-﻿namespace WC.Library.Data.Repository;
+﻿using WC.Library.Data.Models;
 
-public interface IRepository<TEntity>
+namespace WC.Library.Data.Repository;
+
+public interface IRepository<TEntity> where TEntity : class, IEntity
 {
-    Task<ICollection<TEntity>> Get(CancellationToken cancellationToken = default);
-    Task Create(TEntity entity, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TEntity>> Get(CancellationToken cancellationToken = default);
+    Task<TEntity> Create(TEntity entity, CancellationToken cancellationToken = default);
     Task<TEntity?> GetOneById(Guid id, CancellationToken cancellationToken = default);
-    Task Update(TEntity entity, CancellationToken cancellationToken = default);
-    Task Delete(Guid id, CancellationToken cancellationToken = default);
+    Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default);
+    Task<TEntity> Delete(Guid id, CancellationToken cancellationToken = default);
 }

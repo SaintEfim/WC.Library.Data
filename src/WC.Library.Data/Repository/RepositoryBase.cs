@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WC.Library.Data.Models;
 using WC.Library.Shared.Exceptions;
 
 namespace WC.Library.Data.Repository;
 
 public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IRepository<TEntity>
     where TDbContext : DbContext
-    where TEntity : class
+    where TEntity : class, IEntity
 {
     protected RepositoryBase(TDbContext context, ILogger<TRepository> logger)
     {
@@ -18,7 +19,7 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
     private ILogger<TRepository> Logger { get; }
 
-    public virtual async Task<ICollection<TEntity>> Get(CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<TEntity>> Get(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -31,7 +32,7 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task Create(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Create(TEntity entity, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -39,6 +40,8 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
             await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
+
+            return entity;
         }
         catch (DbUpdateException ex)
         {
@@ -70,7 +73,7 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task Update(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -78,6 +81,8 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
             Context.Set<TEntity>().Update(entity);
             await Context.SaveChangesAsync(cancellationToken);
+
+            return entity;
         }
         catch (DbUpdateException ex)
         {
@@ -86,7 +91,7 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task Delete(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -104,6 +109,8 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
             {
                 throw new InvalidOperationException($"Entity with ID {id} was not found during deletion.");
             }
+
+            return entityToDelete;
         }
         catch (DbUpdateException ex)
         {
