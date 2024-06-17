@@ -6,6 +6,7 @@ using WC.Library.Shared.Exceptions;
 namespace WC.Library.Data.Repository;
 
 public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IRepository<TEntity>
+    where TRepository : class, IRepository<TEntity>
     where TDbContext : DbContext
     where TEntity : class, IEntity
 {
