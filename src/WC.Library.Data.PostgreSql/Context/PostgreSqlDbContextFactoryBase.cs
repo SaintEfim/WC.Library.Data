@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 
 namespace WC.Library.Data.PostgreSql.Context;
@@ -6,10 +7,12 @@ namespace WC.Library.Data.PostgreSql.Context;
 public class PostgreSqlDbContextFactoryBase<TDbContext> where TDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
+    private readonly IHostEnvironment _environment;
 
-    protected PostgreSqlDbContextFactoryBase(IConfiguration configuration)
+    protected PostgreSqlDbContextFactoryBase(IConfiguration configuration, IHostEnvironment environment)
     {
         _configuration = configuration;
+        _environment = environment;
     }
 
     protected virtual string ConnectionString => null!;
@@ -23,6 +26,6 @@ public class PostgreSqlDbContextFactoryBase<TDbContext> where TDbContext : DbCon
         optionsBuilder.EnableDetailedErrors();
         optionsBuilder.EnableSensitiveDataLogging();
 
-        return (TDbContext)Activator.CreateInstance(typeof(TDbContext), optionsBuilder.Options)!;
+        return (TDbContext)Activator.CreateInstance(typeof(TDbContext), optionsBuilder.Options, _environment)!;
     }
 }
