@@ -20,11 +20,14 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
     private ILogger<TRepository> Logger { get; }
 
-    public virtual async Task<IEnumerable<TEntity>> Get(CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<TEntity>> Get(bool withIncludes = false,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            return await Context.Set<TEntity>().ToListAsync(cancellationToken);
+            var query = BuildBaseQuery(withIncludes);
+
+            return await query.ToListAsync(cancellationToken);
         }
         catch (DbUpdateException ex)
         {
@@ -118,5 +121,22 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
             Logger.LogError(ex, "Error deleting entity: {Message}", ex.Message);
             throw;
         }
+    }
+
+    protected virtual IQueryable<TEntity> FillRelatedRecords(IQueryable<TEntity> query)
+    {
+        return query;
+    }
+
+    protected virtual IQueryable<TEntity> BuildBaseQuery(bool withIncludes)
+    {
+        var queryable = Context.Set<TEntity>().AsNoTracking();
+
+        if (withIncludes)
+        {
+            queryable = FillRelatedRecords(queryable);
+        }
+
+        return queryable;
     }
 }
