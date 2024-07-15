@@ -54,21 +54,21 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task<TEntity?> GetOneById(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity?> GetOneById(Guid id, bool withIncludes = false,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(id);
 
-            var res = await Context.Set<TEntity>()
-                .FindAsync([id, cancellationToken], cancellationToken: cancellationToken);
+            var resultQuery = BuildBaseQuery(withIncludes).Where(x => x.Id.Equals(id));
 
-            if (res == null)
+            if (resultQuery == null)
             {
                 throw new NotFoundException($"User with id {id} not found.");
             }
 
-            return res;
+            return await resultQuery.SingleOrDefaultAsync(cancellationToken);
         }
         catch (DbUpdateException ex)
         {
