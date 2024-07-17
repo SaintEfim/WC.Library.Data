@@ -57,24 +57,16 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
     public virtual async Task<TEntity?> GetOneById(Guid id, bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
-        try
+        ArgumentNullException.ThrowIfNull(id);
+
+        var resultQuery = BuildBaseQuery(withIncludes).Where(x => x.Id.Equals(id));
+
+        if (resultQuery == null)
         {
-            ArgumentNullException.ThrowIfNull(id);
-
-            var resultQuery = BuildBaseQuery(withIncludes).Where(x => x.Id.Equals(id));
-
-            if (resultQuery == null)
-            {
-                throw new NotFoundException($"User with id {id} not found.");
-            }
-
-            return await resultQuery.SingleOrDefaultAsync(cancellationToken);
+            throw new NotFoundException($"User with id {id} not found.");
         }
-        catch (DbUpdateException ex)
-        {
-            Logger.LogError(ex, "Error getting entity: {Message}", ex.Message);
-            throw;
-        }
+
+        return await resultQuery.SingleOrDefaultAsync(cancellationToken);
     }
 
     public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
