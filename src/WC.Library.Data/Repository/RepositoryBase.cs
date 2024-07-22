@@ -10,7 +10,9 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
     where TDbContext : DbContext
     where TEntity : class, IEntity
 {
-    protected RepositoryBase(TDbContext context, ILogger<TRepository> logger)
+    protected RepositoryBase(
+        TDbContext context,
+        ILogger<TRepository> logger)
     {
         Context = context;
         Logger = logger;
@@ -20,7 +22,8 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
     private ILogger<TRepository> Logger { get; }
 
-    public virtual async Task<IEnumerable<TEntity>> Get(bool withIncludes = false,
+    public virtual async Task<IEnumerable<TEntity>> Get(
+        bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -36,13 +39,16 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task<TEntity> Create(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Create(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(entity);
 
-            await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
+            await Context.Set<TEntity>()
+                .AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
 
             return entity;
@@ -54,12 +60,15 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task<TEntity?> GetOneById(Guid id, bool withIncludes = false,
+    public virtual async Task<TEntity?> GetOneById(
+        Guid id,
+        bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        var resultQuery = BuildBaseQuery(withIncludes).Where(x => x.Id.Equals(id));
+        var resultQuery = BuildBaseQuery(withIncludes)
+            .Where(x => x.Id.Equals(id));
 
         if (resultQuery == null)
         {
@@ -69,13 +78,16 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         return await resultQuery.SingleOrDefaultAsync(cancellationToken);
     }
 
-    public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Update(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(entity);
 
-            Context.Set<TEntity>().Update(entity);
+            Context.Set<TEntity>()
+                .Update(entity);
             await Context.SaveChangesAsync(cancellationToken);
 
             return entity;
@@ -87,18 +99,21 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    public virtual async Task<TEntity> Delete(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Delete(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(id);
 
             var entityToDelete = await Context.Set<TEntity>()
-                .FindAsync([id, cancellationToken], cancellationToken: cancellationToken);
+                .FindAsync([id, cancellationToken], cancellationToken);
 
             if (entityToDelete != null)
             {
-                Context.Set<TEntity>().Remove(entityToDelete);
+                Context.Set<TEntity>()
+                    .Remove(entityToDelete);
                 await Context.SaveChangesAsync(cancellationToken);
             }
             else
@@ -115,14 +130,17 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         }
     }
 
-    protected virtual IQueryable<TEntity> FillRelatedRecords(IQueryable<TEntity> query)
+    protected virtual IQueryable<TEntity> FillRelatedRecords(
+        IQueryable<TEntity> query)
     {
         return query;
     }
 
-    protected virtual IQueryable<TEntity> BuildBaseQuery(bool withIncludes)
+    protected virtual IQueryable<TEntity> BuildBaseQuery(
+        bool withIncludes)
     {
-        var queryable = Context.Set<TEntity>().AsNoTracking();
+        var queryable = Context.Set<TEntity>()
+            .AsNoTracking();
 
         if (withIncludes)
         {
