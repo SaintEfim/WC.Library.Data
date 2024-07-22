@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <PackageId>WC.Library.Data.Abstractions</PackageId>
-        <Version>1.0.4</Version>
-        <Authors>SaintEfim</Authors>
-        <RootNamespace>WC.Library.Data</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>WC.Library.Data.Abstractions</PackageId>
+    <Version>1.0.5</Version>
+    <Authors>SaintEfim</Authors>
+    <RootNamespace>WC.Library.Data</RootNamespace>
+  </PropertyGroup>
 
 </Project>
