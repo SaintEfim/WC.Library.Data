@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WC.Library.Data.Extensions;
 
 namespace WC.Library.Data.Services;
 
@@ -20,7 +21,7 @@ internal sealed class WcTransactionService : IWcTransactionService
         var internalTransaction = false;
         if (transaction == default)
         {
-            transaction = new WcTransaction(await _context.Database.BeginTransactionAsync(cancellationToken));
+            transaction = await _context.StartTransaction(cancellationToken);
             internalTransaction = true;
         }
 
