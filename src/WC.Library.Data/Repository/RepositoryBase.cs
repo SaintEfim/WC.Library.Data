@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WC.Library.Data.Extensions;
 using WC.Library.Data.Models;
+using WC.Library.Data.Services;
 using WC.Library.Shared.Exceptions;
 
 namespace WC.Library.Data.Repository;
@@ -24,10 +26,16 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
     public virtual async Task<IEnumerable<TEntity>> Get(
         bool withIncludes = false,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
+            if (transaction != default)
+            {
+                await Context.UseTransaction(transaction, cancellationToken);
+            }
+
             var query = BuildBaseQuery(withIncludes);
 
             return await query.ToListAsync(cancellationToken);
@@ -41,17 +49,30 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
     public virtual async Task<TEntity> Create(
         TEntity entity,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(entity);
+            if (transaction != default)
+            {
+                await Context.UseTransaction(transaction, cancellationToken);
+            }
 
-            await Context.Set<TEntity>()
+            var createdEntity = await Context.Set<TEntity>()
                 .AddAsync(entity, cancellationToken);
-            await Context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await Context.SaveChangesAsync(cancellationToken);
+            }
+            finally
+            {
+                // detach entity to prevent
+                // "The instance of entity type cannot be tracked because another instance with the key value  is already being tracked."
+                createdEntity.State = EntityState.Detached;
+            }
 
-            return entity;
+            return createdEntity.Entity;
         }
         catch (DbUpdateException ex)
         {
@@ -63,34 +84,56 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
     public virtual async Task<TEntity?> GetOneById(
         Guid id,
         bool withIncludes = false,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(id);
+        if (Guid.Empty.Equals(id))
+        {
+            return default;
+        }
 
-        var resultQuery = BuildBaseQuery(withIncludes)
-            .Where(x => x.Id.Equals(id));
+        if (transaction != default)
+        {
+            await Context.UseTransaction(transaction, cancellationToken);
+        }
+
+        var resultQuery = await BuildBaseQuery(withIncludes)
+            .Where(x => x.Id.Equals(id))
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (resultQuery == null)
         {
             throw new NotFoundException($"User with id {id} not found.");
         }
 
-        return await resultQuery.SingleOrDefaultAsync(cancellationToken);
+        return resultQuery;
     }
 
     public virtual async Task<TEntity> Update(
         TEntity entity,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(entity);
+            if (transaction != default)
+            {
+                await Context.UseTransaction(transaction, cancellationToken);
+            }
 
-            Context.Set<TEntity>()
+            var updatedRowEntry = Context.Set<TEntity>()
                 .Update(entity);
-            await Context.SaveChangesAsync(cancellationToken);
 
-            return entity;
+            try
+            {
+                await Context.SaveChangesAsync(cancellationToken);
+            }
+            finally
+            {
+                updatedRowEntry.State = EntityState.Detached;
+            }
+
+            return updatedRowEntry.Entity;
         }
         catch (DbUpdateException ex)
         {
@@ -101,33 +144,49 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
 
     public virtual async Task<TEntity> Delete(
         Guid id,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(id);
-
-            var entityToDelete = await Context.Set<TEntity>()
-                .FindAsync([id, cancellationToken], cancellationToken);
-
-            if (entityToDelete != null)
+            if (transaction != default)
             {
-                Context.Set<TEntity>()
-                    .Remove(entityToDelete);
-                await Context.SaveChangesAsync(cancellationToken);
-            }
-            else
-            {
-                throw new InvalidOperationException($"Entity with ID {id} was not found during deletion.");
+                await Context.UseTransaction(transaction, cancellationToken);
             }
 
-            return entityToDelete;
+            var record = await GetOneById(id, false, transaction, cancellationToken);
+
+            if (record == null)
+            {
+                throw new NotFoundException($"User with id {id} not found.");
+            }
+
+            return await Delete(record, cancellationToken);
         }
         catch (DbUpdateException ex)
         {
             Logger.LogError(ex, "Error deleting entity: {Message}", ex.Message);
             throw;
         }
+    }
+
+    protected virtual async Task<TEntity> Delete(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
+    {
+        var deletedEntity = Context.Set<TEntity>()
+            .Remove(entity);
+
+        try
+        {
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+        finally
+        {
+            deletedEntity.State = EntityState.Detached;
+        }
+
+        return deletedEntity.Entity;
     }
 
     protected virtual IQueryable<TEntity> FillRelatedRecords(
