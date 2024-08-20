@@ -8,14 +8,11 @@ public class PostgreSqlDbContextFactoryBase<TDbContext>
     where TDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
-    private readonly IHostEnvironment _environment;
 
     protected PostgreSqlDbContextFactoryBase(
-        IConfiguration configuration,
-        IHostEnvironment environment)
+        IConfiguration configuration)
     {
         _configuration = configuration;
-        _environment = environment;
     }
 
     protected virtual string ConnectionString => null!;
@@ -29,6 +26,6 @@ public class PostgreSqlDbContextFactoryBase<TDbContext>
         optionsBuilder.EnableDetailedErrors();
         optionsBuilder.EnableSensitiveDataLogging();
 
-        return (TDbContext) Activator.CreateInstance(typeof(TDbContext), optionsBuilder.Options, _environment)!;
+        return (TDbContext) Activator.CreateInstance(typeof(TDbContext), optionsBuilder.Options)!;
     }
 }
