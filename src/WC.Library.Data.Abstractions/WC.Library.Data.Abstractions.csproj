@@ -5,9 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>WC.Library.Data.Abstractions</PackageId>
-    <Version>1.0.6</Version>
-    <Authors>SaintEfim</Authors>
-    <RootNamespace>WC.Library.Data</RootNamespace>
   </PropertyGroup>
 
 </Project>

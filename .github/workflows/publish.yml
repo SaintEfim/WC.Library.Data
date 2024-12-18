@@ -1,0 +1,95 @@
+﻿name: Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Publish NuGet Packages
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Get latest version for WC.Library.Data
+        id: get-version-data
+        run: |
+          PACKAGE_ID="wc.library.data"
+          PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
+
+          if [ -z "$PACKAGE_VERSION" ]; then
+            echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
+            NEW_VERSION="1.0.0"
+          else
+            echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
+            NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          fi
+
+          echo "New version for $PACKAGE_ID: $NEW_VERSION"
+          echo "data_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Get latest version for WC.Library.Data.Abstractions
+        id: get-version-abstractions
+        run: |
+          PACKAGE_ID="wc.library.data.abstractions"
+          PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
+
+          if [ -z "$PACKAGE_VERSION" ]; then
+            echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
+            NEW_VERSION="1.0.0"
+          else
+            echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
+            NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          fi
+
+          echo "New version for $PACKAGE_ID: $NEW_VERSION"
+          echo "abstractions_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Get latest version for WC.Library.Data.PostgreSql
+        id: get-version-postgresql
+        run: |
+          PACKAGE_ID="wc.library.data.postgresql"
+          PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
+
+          if [ -z "$PACKAGE_VERSION" ]; then
+            echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
+            NEW_VERSION="1.0.0"
+          else
+            echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
+            NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          fi
+
+          echo "New version for $PACKAGE_ID: $NEW_VERSION"
+          echo "postgresql_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update version in WC.Library.Data
+        run: |
+          dotnet build src/WC.Library.Data/WC.Library.Data.csproj /p:Version=${{ env.data_version }}
+
+      - name: Update version in WC.Library.Data.Abstractions
+        run: |
+          dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj /p:Version=${{ env.abstractions_version }}
+
+      - name: Update version in WC.Library.Data.PostgreSql
+        run: |
+          dotnet build src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj /p:Version=${{ env.postgresql_version }}
+
+      - name: Build and pack WC.Library.Data
+        run: dotnet pack src/WC.Library.Data/WC.Library.Data.csproj -c Release -o ./out
+
+      - name: Build and pack WC.Library.Data.Abstractions
+        run: dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj -c Release -o ./out
+
+      - name: Build and pack WC.Library.Data.PostgreSql
+        run: dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj -c Release -o ./out
+
+      - name: Publish packages to NuGet
+        run: dotnet nuget push ./out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
