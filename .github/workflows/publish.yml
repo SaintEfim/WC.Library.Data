@@ -22,15 +22,10 @@ jobs:
       - name: Check for changes in project files
         id: check-changes
         run: |
-          # Проверяем, есть ли предыдущий коммит
-          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
-          else
-            CHANGED_FILES=$(git ls-files)
-          fi
-  
+          CHANGED_FILES=$(git diff --name-only HEAD)
+
           # Фильтруем несущественные файлы
-          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "\.editorconfig$|\.gitignore$|\.yml$|\.sln$|^\.github/workflows/publish.yml/")
+          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "\.editorconfig$|\.gitignore$|\.yml$|\.sln$|^\.github/")
 
           echo "Filtered essential changes: $ESSENTIAL_CHANGES"
 
