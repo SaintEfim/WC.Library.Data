@@ -22,7 +22,14 @@ jobs:
       - name: Check for changes in project files
         id: check-changes
         run: |
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          # Проверяем, есть ли предыдущий коммит
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          else
+            echo "No previous commit found. Assuming all files are changed."
+            CHANGED_FILES=$(git ls-files)
+          fi
+
           echo "Changed files: $CHANGED_FILES"
 
           # Проверяем, есть ли изменения в проектах
@@ -32,7 +39,8 @@ jobs:
           else
             echo "No changes detected in project files. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
-
+      
+      
       - name: Get latest version for WC.Library.Data
         if: env.should_publish == 'true'
         id: get-version-data
