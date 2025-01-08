@@ -30,17 +30,22 @@ jobs:
             CHANGED_FILES=$(git ls-files)
           fi
 
-          echo "Changed files: $CHANGED_FILES"
+          echo "All changed files: $CHANGED_FILES"
+
+          # Фильтруем несущественные файлы
+          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "(\.editorconfig|\.gitignore|\.yml|\.sln)$")
+
+          echo "Filtered essential changes: $ESSENTIAL_CHANGES"
 
           # Проверяем, есть ли изменения в проектах
-          if echo "$CHANGED_FILES" | grep -Eq "src/WC.Library.Data|src/WC.Library.Data.Abstractions|src/WC.Library.Data.PostgreSql"; then
+          if echo "$ESSENTIAL_CHANGES" | grep -Eq "src/WC.Library.Data|src/WC.Library.Data.Abstractions|src/WC.Library.Data.PostgreSql"; then
             echo "Changes detected in project files."
             echo "should_publish=true" >> $GITHUB_ENV
           else
-            echo "No changes detected in project files. Skipping publish."
+            echo "No essential changes detected. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
           fi
-
+      
       - name: Get latest version for WC.Library.Data
         if: env.should_publish == 'true'
         id: get-version-data
