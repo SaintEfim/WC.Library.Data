@@ -37,12 +37,19 @@ jobs:
 
           echo "Filtered essential changes: $ESSENTIAL_CHANGES"
 
-          # Проверяем, есть ли изменения в проектах
+          # Если нет изменений, ничего не делаем
+          if [ -z "$ESSENTIAL_CHANGES" ]; then
+            echo "No essential changes detected. Skipping publish."
+            echo "should_publish=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # Проверяем, есть ли изменения в проектных файлах
           if echo "$ESSENTIAL_CHANGES" | grep -Eq "src/WC.Library.Data|src/WC.Library.Data.Abstractions|src/WC.Library.Data.PostgreSql"; then
             echo "Changes detected in project files."
             echo "should_publish=true" >> $GITHUB_ENV
           else
-            echo "No essential changes detected. Skipping publish."
+            echo "No changes detected in relevant project files. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
           fi
       
