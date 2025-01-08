@@ -70,26 +70,18 @@ jobs:
           echo "New version for $PACKAGE_ID: $NEW_VERSION"
           echo "postgresql_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Update version in WC.Library.Data
-        run: |
-          dotnet build src/WC.Library.Data/WC.Library.Data.csproj /p:Version=${{ env.data_version }}
-
-      - name: Update version in WC.Library.Data.Abstractions
-        run: |
-          dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj /p:Version=${{ env.abstractions_version }}
-
-      - name: Update version in WC.Library.Data.PostgreSql
-        run: |
-          dotnet build src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj /p:Version=${{ env.postgresql_version }}
-
       - name: Build and pack WC.Library.Data
-        run: dotnet pack src/WC.Library.Data/WC.Library.Data.csproj -c Release -o ./out
+        run: |
+          dotnet pack src/WC.Library.Data/WC.Library.Data.csproj -c Release -o ./out /p:Version=${{ env.data_version }}
 
       - name: Build and pack WC.Library.Data.Abstractions
-        run: dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj -c Release -o ./out
+        run: |
+          dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj -c Release -o ./out /p:Version=${{ env.abstractions_version }}
 
       - name: Build and pack WC.Library.Data.PostgreSql
-        run: dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj -c Release -o ./out
+        run: |
+          dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj -c Release -o ./out /p:Version=${{ env.postgresql_version }}
 
       - name: Publish packages to NuGet
-        run: dotnet nuget push ./out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: |
+          dotnet nuget push ./out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
