@@ -44,8 +44,13 @@ jobs:
           else
             echo "No essential changes detected. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
-          fi
-      
+
+      - name: Check if we need to continue
+        if: env.should_publish == 'false'
+        run: |
+          echo "No changes detected, skipping version increment and publishing."
+          exit 0
+
       - name: Get latest version for WC.Library.Data
         if: env.should_publish == 'true'
         id: get-version-data
