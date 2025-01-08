@@ -44,6 +44,7 @@ jobs:
           else
             echo "No essential changes detected. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
+          fi
 
       - name: Check if we need to continue
         if: env.should_publish == 'false'
