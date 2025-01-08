@@ -19,7 +19,22 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Check for changes in project files
+        id: check-changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          echo "Changed files: $CHANGED_FILES"
+
+          # Проверяем, есть ли изменения в проектах
+          if echo "$CHANGED_FILES" | grep -Eq "src/WC.Library.Data|src/WC.Library.Data.Abstractions|src/WC.Library.Data.PostgreSql"; then
+            echo "Changes detected in project files."
+            echo "should_publish=true" >> $GITHUB_ENV
+          else
+            echo "No changes detected in project files. Skipping publish."
+            echo "should_publish=false" >> $GITHUB_ENV
+
       - name: Get latest version for WC.Library.Data
+        if: env.should_publish == 'true'
         id: get-version-data
         run: |
           PACKAGE_ID="wc.library.data"
@@ -37,6 +52,7 @@ jobs:
           echo "data_version=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Get latest version for WC.Library.Data.Abstractions
+        if: env.should_publish == 'true'
         id: get-version-abstractions
         run: |
           PACKAGE_ID="wc.library.data.abstractions"
@@ -54,6 +70,7 @@ jobs:
           echo "abstractions_version=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Get latest version for WC.Library.Data.PostgreSql
+        if: env.should_publish == 'true'
         id: get-version-postgresql
         run: |
           PACKAGE_ID="wc.library.data.postgresql"
@@ -71,17 +88,22 @@ jobs:
           echo "postgresql_version=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Build and pack WC.Library.Data
+        if: env.should_publish == 'true'
         run: |
           dotnet pack src/WC.Library.Data/WC.Library.Data.csproj -c Release -o ./out /p:Version=${{ env.data_version }}
 
       - name: Build and pack WC.Library.Data.Abstractions
+        if: env.should_publish == 'true'
         run: |
           dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj -c Release -o ./out /p:Version=${{ env.abstractions_version }}
 
       - name: Build and pack WC.Library.Data.PostgreSql
+        if: env.should_publish == 'true'
         run: |
           dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj -c Release -o ./out /p:Version=${{ env.postgresql_version }}
 
       - name: Publish packages to NuGet
+        if: env.should_publish == 'true'
         run: |
+          set -e  # Прерываем выполнение скрипта при ошибке
           dotnet nuget push ./out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
