@@ -39,8 +39,8 @@ jobs:
           else
             echo "No changes detected in project files. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
-      
-      
+          fi
+
       - name: Get latest version for WC.Library.Data
         if: env.should_publish == 'true'
         id: get-version-data
