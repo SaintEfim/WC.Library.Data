@@ -23,7 +23,7 @@ jobs:
         id: check-changes
         run: |
           # Проверяем, есть ли предыдущий коммит
-          if git rev-parse HEAD^ >/dev/null 2>&1; then
+          if git rev-parse HEAD^; then
             CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
           else
             echo "No previous commit found. Assuming all files are changed."
