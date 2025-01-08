@@ -29,8 +29,7 @@ jobs:
             CHANGED_FILES=$(git ls-files)
           fi
   
-  
-  # Фильтруем несущественные файлы
+          # Фильтруем несущественные файлы
           ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "\.editorconfig$|\.gitignore$|\.yml$|\.sln$|^\.github/workflows/publish.yml/")
 
           echo "Filtered essential changes: $ESSENTIAL_CHANGES"
