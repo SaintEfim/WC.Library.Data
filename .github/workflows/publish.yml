@@ -30,10 +30,8 @@ jobs:
             CHANGED_FILES=$(git ls-files)
           fi
 
-          echo "All changed files: $CHANGED_FILES"
-
           # Фильтруем несущественные файлы
-          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "\.editorconfig$|\.gitignore$|\.yml$|\.sln$|^\.github/")
+          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "\.editorconfig$|\.gitignore$|\.yml$|\.sln$|^\.github/workflows/publish.yml/")
 
           echo "Filtered essential changes: $ESSENTIAL_CHANGES"
 
@@ -52,7 +50,7 @@ jobs:
             echo "No changes detected in relevant project files. Skipping publish."
             echo "should_publish=false" >> $GITHUB_ENV
           fi
-      
+
       - name: Check if we need to continue
         if: env.should_publish == 'false'
         run: |
