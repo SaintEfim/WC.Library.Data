@@ -114,7 +114,6 @@ jobs:
       - name: Build and pack WC.Library.Data
         if: env.should_publish == 'true'
         run: |
-          dotnet add src/WC.Library.Data package WC.Library.Data.Abstractions --version ${{ env.abstractions_version }}
           dotnet pack src/WC.Library.Data/WC.Library.Data.csproj -c Release -o ./out /p:Version=${{ env.data_version }}
 
       - name: Build and pack WC.Library.Data.PostgreSql
