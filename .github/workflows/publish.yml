@@ -33,7 +33,7 @@ jobs:
           echo "All changed files: $CHANGED_FILES"
 
           # Фильтруем несущественные файлы
-          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "(\.editorconfig|\.gitignore|\.yml|\.sln)$")
+          ESSENTIAL_CHANGES=$(echo "$CHANGED_FILES" | grep -Ev "(\.editorconfig|\.gitignore|\.yml|\.sln|^\.github/)")
 
           echo "Filtered essential changes: $ESSENTIAL_CHANGES"
 
