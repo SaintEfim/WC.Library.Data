@@ -40,17 +40,22 @@ jobs:
 
           echo "abstractions_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      # Обновление версии в WC.Library.Data для WC.Library.Data.Abstractions
-      - name: Update WC.Library.Data dependency version
-        run: |
-          sed -i "s/<Version>.*<\/Version>/<Version>${{ env.abstractions_version }}<\/Version>/" src/WC.Library.Data/WC.Library.Data.csproj
-
       # Сборка и публикация WC.Library.Data.Abstractions
       - name: Build and publish WC.Library.Data.Abstractions
         run: |
           dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
           dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # Добавление локального источника для WC.Library.Data.Abstractions
+      - name: Add local package source
+        run: |
+          dotnet nuget add source ./artifacts --name LocalPackages
+
+      # Установка новой версии WC.Library.Data.Abstractions в WC.Library.Data
+      - name: Update WC.Library.Data dependency version
+        run: |
+          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }} --source ./artifacts
 
       # Получение версии для WC.Library.Data
       - name: Get latest version for WC.Library.Data
