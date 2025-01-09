@@ -47,6 +47,12 @@ jobs:
           dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
+      # Восстановление зависимостей перед установкой локального пакета
+      - name: Restore dependencies for WC.Library.Data
+        run: |
+          # Восстановить зависимости из стандартных NuGet-репозиториев
+          dotnet restore src/WC.Library.Data/WC.Library.Data.csproj
+
       # Установка новой версии WC.Library.Data.Abstractions в WC.Library.Data
       - name: Update WC.Library.Data dependency version
         run: |
@@ -54,12 +60,12 @@ jobs:
           dotnet nuget add source ./artifacts --name LocalPackages
 
           # Установка пакета из локального источника
-          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }} --source ./artifacts
+          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }}
 
           # Удаление локального источника после установки
           dotnet nuget remove source LocalPackages
 
-          # Восстановление зависимостей из стандартного NuGet-репозитория
+          # Восстановление всех зависимостей
           dotnet restore src/WC.Library.Data/WC.Library.Data.csproj
 
       # Получение версии для WC.Library.Data
@@ -84,28 +90,4 @@ jobs:
         run: |
           dotnet build src/WC.Library.Data/WC.Library.Data.csproj --configuration Release
           dotnet pack src/WC.Library.Data/WC.Library.Data.csproj --configuration Release --output ./artifacts /p:Version=$data_version
-          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-
-      # Получение версии для WC.Library.Data.PostgreSql
-      - name: Get latest version for WC.Library.Data.PostgreSql
-        id: get-version-postgresql
-        run: |
-          PACKAGE_ID="wc.library.data.postgresql"
-          PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
-
-          if [ -z "$PACKAGE_VERSION" ]; then
-            echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
-            NEW_VERSION="1.0.0"
-          else
-            echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
-            NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
-          fi
-
-          echo "postgresql_version=$NEW_VERSION" >> $GITHUB_ENV
-
-      # Сборка и публикация WC.Library.Data.PostgreSql
-      - name: Build and publish WC.Library.Data.PostgreSql
-        run: |
-          dotnet build src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release
-          dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release --output ./artifacts /p:Version=$postgresql_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
