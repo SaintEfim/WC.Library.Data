@@ -83,20 +83,20 @@ jobs:
       # Сборка и публикация WC.Library.Data.Abstractions
       - name: Build and publish WC.Library.Data.Abstractions
         run: |
-          dotnet build WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
-          dotnet pack WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
+          dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
+          dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
 
       # Сборка и публикация WC.Library.Data
       - name: Build and publish WC.Library.Data
         run: |
-          dotnet build WC.Library.Data/WC.Library.Data.csproj --configuration Release
-          dotnet pack WC.Library.Data/WC.Library.Data.csproj --configuration Release --output ./artifacts /p:Version=$data_version
+          dotnet build src/WC.Library.Data/WC.Library.Data.csproj --configuration Release
+          dotnet pack src/WC.Library.Data/WC.Library.Data.csproj --configuration Release --output ./artifacts /p:Version=$data_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
 
       # Сборка и публикация WC.Library.Data.PostgreSql
       - name: Build and publish WC.Library.Data.PostgreSql
         run: |
-          dotnet build WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release
-          dotnet pack WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release --output ./artifacts /p:Version=$postgresql_version
+          dotnet build src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release
+          dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release --output ./artifacts /p:Version=$postgresql_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
