@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # Секретный ключ для публикации в NuGet
 
     steps:
       # Проверка кода
@@ -85,18 +85,18 @@ jobs:
         run: |
           dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
           dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
-          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       # Сборка и публикация WC.Library.Data
       - name: Build and publish WC.Library.Data
         run: |
           dotnet build src/WC.Library.Data/WC.Library.Data.csproj --configuration Release
           dotnet pack src/WC.Library.Data/WC.Library.Data.csproj --configuration Release --output ./artifacts /p:Version=$data_version
-          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       # Сборка и публикация WC.Library.Data.PostgreSql
       - name: Build and publish WC.Library.Data.PostgreSql
         run: |
           dotnet build src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release
           dotnet pack src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj --configuration Release --output ./artifacts /p:Version=$postgresql_version
-          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
