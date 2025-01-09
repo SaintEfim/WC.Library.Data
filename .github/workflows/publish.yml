@@ -47,15 +47,17 @@ jobs:
           dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
           dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
-      # Добавление локального источника
-      - name: Add local package source
-        run: |
-          dotnet nuget add source ./artifacts --name LocalPackages
-
-      # Установка новой версии WC.Library.Data.Abstractions в WC.Library.Data
+      # Добавление и использование локального источника
       - name: Update WC.Library.Data dependency version
         run: |
-          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }} --source ./artifacts --source https://api.nuget.org/v3/index.json
+          # Добавление локального источника
+          dotnet nuget add source ./artifacts --name LocalPackages
+
+          # Установка пакета из локального источника
+          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }} --source ./artifacts
+
+          # Восстановление зависимостей с учетом стандартного источника (nuget.org)
+          dotnet restore src/WC.Library.Data/WC.Library.Data.csproj
 
       # Получение версии для WC.Library.Data
       - name: Get latest version for WC.Library.Data
@@ -90,6 +92,7 @@ jobs:
 
           if [ -z "$PACKAGE_VERSION" ]; then
             echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
+
             NEW_VERSION="1.0.0"
           else
             echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
