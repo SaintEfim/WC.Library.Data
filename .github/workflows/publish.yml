@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # Секретный ключ для публикации в NuGet
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     steps:
       # Проверка кода
@@ -39,8 +39,18 @@ jobs:
           fi
 
           echo "abstractions_version=$NEW_VERSION" >> $GITHUB_ENV
-        env:
-          should_publish: true
+
+      # Обновление версии в WC.Library.Data для WC.Library.Data.Abstractions
+      - name: Update WC.Library.Data dependency version
+        run: |
+          sed -i "s/<Version>.*<\/Version>/<Version>${{ env.abstractions_version }}<\/Version>/" src/WC.Library.Data/WC.Library.Data.csproj
+
+      # Сборка и публикация WC.Library.Data.Abstractions
+      - name: Build and publish WC.Library.Data.Abstractions
+        run: |
+          dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
+          dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
+          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       # Получение версии для WC.Library.Data
       - name: Get latest version for WC.Library.Data
@@ -58,8 +68,13 @@ jobs:
           fi
 
           echo "data_version=$NEW_VERSION" >> $GITHUB_ENV
-        env:
-          should_publish: true
+
+      # Сборка и публикация WC.Library.Data
+      - name: Build and publish WC.Library.Data
+        run: |
+          dotnet build src/WC.Library.Data/WC.Library.Data.csproj --configuration Release
+          dotnet pack src/WC.Library.Data/WC.Library.Data.csproj --configuration Release --output ./artifacts /p:Version=$data_version
+          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       # Получение версии для WC.Library.Data.PostgreSql
       - name: Get latest version for WC.Library.Data.PostgreSql
@@ -77,22 +92,6 @@ jobs:
           fi
 
           echo "postgresql_version=$NEW_VERSION" >> $GITHUB_ENV
-        env:
-          should_publish: true
-
-      # Сборка и публикация WC.Library.Data.Abstractions
-      - name: Build and publish WC.Library.Data.Abstractions
-        run: |
-          dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
-          dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
-          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-
-      # Сборка и публикация WC.Library.Data
-      - name: Build and publish WC.Library.Data
-        run: |
-          dotnet build src/WC.Library.Data/WC.Library.Data.csproj --configuration Release
-          dotnet pack src/WC.Library.Data/WC.Library.Data.csproj --configuration Release --output ./artifacts /p:Version=$data_version
-          dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       # Сборка и публикация WC.Library.Data.PostgreSql
       - name: Build and publish WC.Library.Data.PostgreSql
