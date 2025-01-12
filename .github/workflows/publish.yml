@@ -62,8 +62,8 @@ jobs:
           # Добавляем зависимость из локального репозитория
           dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }} --source ./artifacts
 
-          # Выполняем восстановление всех зависимостей, включая nuget.org
-          dotnet restore src/WC.Library.Data/WC.Library.Data.csproj
+          # Восстанавливаем зависимости из обоих источников (локального и глобального)
+          dotnet restore src/WC.Library.Data/WC.Library.Data.csproj --source ./artifacts --source https://api.nuget.org/v3/index.json
 
       # Получение версии для WC.Library.Data
       - name: Get latest version for WC.Library.Data
@@ -74,7 +74,7 @@ jobs:
 
           if [ -z "$PACKAGE_VERSION" ]; then
             echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
-            NEW_VERSION="1.0.0"
+            NEW_VERSION="1.0.0."
           else
             echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
             NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
