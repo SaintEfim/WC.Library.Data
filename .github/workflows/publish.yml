@@ -23,11 +23,15 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      # Добавление стандартного NuGet-источника
+      # Настройка NuGet-источников
       - name: Configure NuGet sources
         run: |
-          dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-          dotnet nuget add source ./artifacts --name LocalPackages
+          if ! dotnet nuget list source | grep -q "nuget.org"; then
+            dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
+          fi
+          if ! dotnet nuget list source | grep -q "LocalPackages"; then
+            dotnet nuget add source ./artifacts --name LocalPackages
+          fi
 
       # Получение версии для WC.Library.Data.Abstractions
       - name: Get latest version for WC.Library.Data.Abstractions
