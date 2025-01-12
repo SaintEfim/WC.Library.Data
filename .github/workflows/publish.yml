@@ -56,17 +56,6 @@ jobs:
           dotnet build src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release
           dotnet pack src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj --configuration Release --output ./artifacts /p:Version=$abstractions_version
 
-      - name: Restore dependencies
-        run: |
-          # Добавляем все нужные зависимости
-          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package Autofac
-          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package Microsoft.EntityFrameworkCore
-          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package Microsoft.EntityFrameworkCore.Relational
-          dotnet add src/WC.Library.Data/WC.Library.Data.csproj package Microsoft.Extensions.Logging
-
-          # Восстанавливаем зависимости
-          dotnet restore src/WC.Library.Data/WC.Library.Data.csproj --source ./artifacts --source https://api.nuget.org/v3/index.json
-
       # Обновление зависимости WC.Library.Data.Abstractions в WC.Library.Data
       - name: Update WC.Library.Data dependency version
         run: |
