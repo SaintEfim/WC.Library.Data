@@ -59,10 +59,10 @@ jobs:
       # Обновление зависимости WC.Library.Data.Abstractions в WC.Library.Data
       - name: Update WC.Library.Data dependency version
         run: |
-          # Добавляем зависимость из локального репозитория
+          # Добавляем пакет wc.library.data.abstractions из локального источника
           dotnet add src/WC.Library.Data/WC.Library.Data.csproj package wc.library.data.abstractions --version ${{ env.abstractions_version }} --source ./artifacts
 
-          # Восстанавливаем зависимости из обоих источников (локального и глобального)
+          # Восстанавливаем все зависимости, указав оба источника
           dotnet restore src/WC.Library.Data/WC.Library.Data.csproj --source ./artifacts --source https://api.nuget.org/v3/index.json
 
       # Получение версии для WC.Library.Data
