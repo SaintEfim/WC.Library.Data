@@ -28,7 +28,7 @@ jobs:
             PROJECT_PATH=$2
             echo "Processing package: $PACKAGE_ID"
 
-            # Get latest version from NuGet
+            # Get the latest version from NuGet
             PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
             if [ -z "$PACKAGE_VERSION" ]; then
               echo "No versions found for $PACKAGE_ID. Starting from 1.0.0."
@@ -45,8 +45,7 @@ jobs:
             dotnet nuget push $PROJECT_PATH/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
-          # List of packages to process
+          # Process each package
           publish_package "wc.library.data.abstractions" "src/WC.Library.Data.Abstractions/WC.Library.Data.Abstractions.csproj"
           publish_package "wc.library.data" "src/WC.Library.Data/WC.Library.Data.csproj"
           publish_package "wc.library.data.postgresql" "src/WC.Library.Data.PostgreSql/WC.Library.Data.PostgreSql.csproj"
-
