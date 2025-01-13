@@ -39,10 +39,19 @@ jobs:
             fi
             echo "New version: $NEW_VERSION"
 
-            # Build, pack, and push package
+            # Build and pack package
             dotnet build $PROJECT_PATH --configuration Release
             dotnet pack $PROJECT_PATH --configuration Release /p:Version=$NEW_VERSION
-            dotnet nuget push $PROJECT_PATH/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+            # Determine the output path of the .nupkg file
+            NUPKG_FILE=$(find "$(dirname "$PROJECT_PATH")/bin/Release" -name "*.nupkg" -type f)
+            if [ -z "$NUPKG_FILE" ]; then
+              echo "Error: .nupkg file not found for $PACKAGE_ID"
+              exit 1
+            fi
+
+            # Push package to NuGet
+            dotnet nuget push "$NUPKG_FILE" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
           # Process each package
