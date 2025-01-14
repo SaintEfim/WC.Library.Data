@@ -13,14 +13,21 @@ jobs:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Install xmlstarlet
+      - name: Install xmlstarlet
+        run: sudo apt-get install -y xmlstarlet
+
+      # Setup .NET environment
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
+      # Build and publish libraries
       - name: Build and Publish Libraries
         run: |
           publish_package() {
@@ -39,9 +46,19 @@ jobs:
             fi
             echo "New version: $NEW_VERSION"
 
+            # Update .csproj file with new version
+            echo "Updating version in $PROJECT_PATH"
+            xmlstarlet ed --inplace \
+            -s "/Project/PropertyGroup" -t elem -n "Version" -v "$NEW_VERSION" "$PROJECT_PATH" \
+            || xmlstarlet ed --inplace -u "//PropertyGroup/Version" -v "$NEW_VERSION" "$PROJECT_PATH"
+
+            # Display the updated .csproj file for debugging
+            echo "Updated .csproj:"
+            cat "$PROJECT_PATH"
+
             # Build and pack package
             dotnet build $PROJECT_PATH --configuration Release
-            dotnet pack $PROJECT_PATH --configuration Release /p:Version=$NEW_VERSION
+            dotnet pack $PROJECT_PATH --configuration Release
 
             # Determine the output path of the .nupkg file
             NUPKG_FILE=$(find "$(dirname "$PROJECT_PATH")/bin/Release" -name "*.nupkg" -type f)
