@@ -45,6 +45,7 @@ jobs:
 
             # Determine the output path of the .nupkg file
             NUPKG_FILE=$(find "$(dirname "$PROJECT_PATH")/bin/Release" -name "*.nupkg" -type f)
+            echo "NUPKG File $NUPKG_FILE"
             if [ -z "$NUPKG_FILE" ]; then
               echo "Error: .nupkg file not found for $PACKAGE_ID"
               exit 1
