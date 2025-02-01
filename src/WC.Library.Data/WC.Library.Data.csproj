@@ -11,7 +11,7 @@
     <PackageReference Include="Autofac" Version="8.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="Sieve" Version="2.5.5" />
     <PackageReference Include="WC.Library.Shared" Version="1.0.10" />
   </ItemGroup>
