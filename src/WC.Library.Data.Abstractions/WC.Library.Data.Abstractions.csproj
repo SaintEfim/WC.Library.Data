@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>WC.Library.Data.Abstractions</PackageId>
+    <RootNamespace>WC.Library.Data</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Sieve" Version="2.5.5" />
+  </ItemGroup>
 
 </Project>

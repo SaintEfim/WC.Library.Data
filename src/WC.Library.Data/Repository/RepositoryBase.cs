@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Sieve.Models;
+using Sieve.Services;
 using WC.Library.Data.Extensions;
 using WC.Library.Data.Models;
 using WC.Library.Data.Services;
@@ -12,12 +14,16 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
     where TDbContext : DbContext
     where TEntity : class, IEntity
 {
+    private readonly ISieveProcessor _sieveProcessor;
+
     protected RepositoryBase(
         TDbContext context,
-        ILogger<TRepository> logger)
+        ILogger<TRepository> logger,
+        ISieveProcessor sieveProcessor)
     {
         Context = context;
         Logger = logger;
+        _sieveProcessor = sieveProcessor;
     }
 
     private TDbContext Context { get; }
@@ -25,24 +31,30 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
     private ILogger<TRepository> Logger { get; }
 
     public virtual async Task<IEnumerable<TEntity>> Get(
+        SieveModel? sieveModel = default,
         bool withIncludes = false,
         IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            if (transaction != default)
+            if (transaction != null)
             {
                 await Context.UseTransaction(transaction, cancellationToken);
             }
 
             var query = BuildBaseQuery(withIncludes);
 
+            if (sieveModel is not null)
+            {
+                query = _sieveProcessor.Apply(sieveModel, query);
+            }
+
             return await query.ToListAsync(cancellationToken);
         }
         catch (DbUpdateException ex)
         {
-            Logger.LogError(ex, "Error creating entity: {Message}", ex.Message);
+            Logger.LogError(ex, "Error getting entities: {Message}", ex.Message);
             throw;
         }
     }
