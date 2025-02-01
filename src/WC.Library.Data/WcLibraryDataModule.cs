@@ -14,10 +14,5 @@ public sealed class WcLibraryDataModule : Module
 
         builder.RegisterType<SieveProcessor>()
             .As<ISieveProcessor>();
-
-        builder.RegisterAssemblyTypes(ThisAssembly)
-            .Where(t => typeof(SievePropertyMapper).IsAssignableFrom(t) && !t.IsAbstract)
-            .AsImplementedInterfaces()
-            .InstancePerLifetimeScope();
     }
 }

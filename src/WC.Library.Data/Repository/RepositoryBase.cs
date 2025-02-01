@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Sieve.Exceptions;
 using Sieve.Models;
 using Sieve.Services;
 using WC.Library.Data.Extensions;
@@ -56,6 +57,11 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
         {
             Logger.LogError(ex, "Error getting entities: {Message}", ex.Message);
             throw;
+        }
+        catch (SieveException ex)
+        {
+            Logger.LogError(ex, "Error getting entities: {Message}", ex.Message);
+            throw new SieveException($"Error getting entities: {ex.Message}");
         }
     }
 
