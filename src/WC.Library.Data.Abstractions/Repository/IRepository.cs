@@ -1,4 +1,5 @@
-﻿using WC.Library.Data.Models;
+﻿using Sieve.Models;
+using WC.Library.Data.Models;
 using WC.Library.Data.Services;
 
 namespace WC.Library.Data.Repository;
@@ -7,6 +8,7 @@ public interface IRepository<TEntity>
     where TEntity : class, IEntity
 {
     Task<IEnumerable<TEntity>> Get(
+        SieveModel? filter = default,
         bool withIncludes = false,
         IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default);
