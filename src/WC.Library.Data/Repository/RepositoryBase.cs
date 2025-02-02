@@ -63,6 +63,11 @@ public abstract class RepositoryBase<TRepository, TDbContext, TEntity> : IReposi
             Logger.LogError(ex, "Error getting entities: {Message}", ex.Message);
             throw new SieveException($"Error getting entities: {ex.Message}");
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error getting entities: {Message}", ex.Message);
+            throw;
+        }
     }
 
     public virtual async Task<TEntity> Create(
